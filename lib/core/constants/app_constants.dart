@@ -3,6 +3,8 @@ class AppConstants {
   static const String tokenKey = 'auth_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String usernameKey = 'username';
+  static const String biometricUsernameKey = 'biometric_username';
+  static const String biometricPasswordKey = 'biometric_password';
   static const String productsBox = 'products_box';
   static const String favouritesBox = 'favourites_box';
   static const String settingsBox = 'settings_box';

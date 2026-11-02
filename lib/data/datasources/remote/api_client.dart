@@ -40,7 +40,6 @@ class ApiClient {
         LogInterceptor(
           requestBody: true,
           responseBody: true,
-          logPrint: (o) => print(o), // ignore: avoid_print
         ),
       );
       return true;

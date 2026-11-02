@@ -25,6 +25,10 @@ class AuthRepositoryImpl implements AuthRepository {
         _secureStorage.saveToken(authModel.accessToken),
         _secureStorage.saveRefreshToken(authModel.refreshToken),
         _secureStorage.saveUsername(authModel.username),
+        _secureStorage.saveBiometricCredentials(
+          username: username,
+          password: password,
+        ),
       ]);
 
       _apiClient.updateToken(authModel.accessToken);
@@ -74,7 +78,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     try {
-      await _secureStorage.clearAll();
+      await _secureStorage.clearSession();
       _apiClient.updateToken(null);
     } catch (e) {
       throw UnknownException(e.toString());

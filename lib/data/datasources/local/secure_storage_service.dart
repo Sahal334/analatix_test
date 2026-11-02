@@ -52,6 +52,59 @@ class SecureStorageService {
     }
   }
 
+  Future<void> saveBiometricCredentials({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      await _storage.write(
+        key: AppConstants.biometricUsernameKey,
+        value: username,
+      );
+      await _storage.write(
+        key: AppConstants.biometricPasswordKey,
+        value: password,
+      );
+    } catch (_) {}
+  }
+
+  Future<Map<String, String>?> getBiometricCredentials() async {
+    try {
+      final username =
+          await _storage.read(key: AppConstants.biometricUsernameKey);
+      final password =
+          await _storage.read(key: AppConstants.biometricPasswordKey);
+      if (username != null &&
+          password != null &&
+          username.isNotEmpty &&
+          password.isNotEmpty) {
+        return {'username': username, 'password': password};
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> hasBiometricCredentials() async {
+    final creds = await getBiometricCredentials();
+    return creds != null;
+  }
+
+  Future<void> clearSession() async {
+    try {
+      await _storage.delete(key: AppConstants.tokenKey);
+      await _storage.delete(key: AppConstants.refreshTokenKey);
+    } catch (_) {}
+  }
+
+  Future<void> clearBiometricCredentials() async {
+    try {
+      await _storage.delete(key: AppConstants.biometricUsernameKey);
+      await _storage.delete(key: AppConstants.biometricPasswordKey);
+    } catch (_) {}
+  }
+
   Future<void> clearAll() async {
     try {
       await _storage.deleteAll();

@@ -94,6 +94,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         error: null,
       );
+      _ref.invalidate(isBiometricAvailableProvider);
     } on AuthException catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -119,13 +120,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       final storage = _ref.read(secureStorageProvider);
-      final token = await storage.getToken();
-      final username = await storage.getUsername();
+      final creds = await storage.getBiometricCredentials();
 
-      if (token == null || token.isEmpty) {
+      if (creds == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'No saved session found. Please sign in with password first.',
+          error: 'No saved credentials found. Please sign in with password first.',
         );
         return false;
       }
@@ -133,17 +133,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final biometric = _ref.read(biometricServiceProvider);
       final authenticated = await biometric.authenticate();
 
-      if (authenticated) {
-        _ref.read(apiClientProvider).updateToken(token);
-        state = state.copyWith(
-          isAuthenticated: true,
-          token: token,
-          username: username,
-          isLoading: false,
-          error: null,
-        );
-        return true;
-      } else {
+      if (!authenticated) {
         state = state.copyWith(
           isAuthenticated: false,
           isLoading: false,
@@ -151,8 +141,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return false;
       }
+
+      final repo = _ref.read(authRepositoryProvider);
+      final auth = await repo.login(creds['username']!, creds['password']!);
+
+      state = state.copyWith(
+        isAuthenticated: true,
+        token: auth.accessToken,
+        username: auth.username,
+        isLoading: false,
+        error: null,
+      );
+      _ref.invalidate(isBiometricAvailableProvider);
+      return true;
+    } on AppException catch (e) {
+      state = state.copyWith(
+        isAuthenticated: false,
+        isLoading: false,
+        error: e.message,
+      );
+      return false;
     } catch (e) {
       state = state.copyWith(
+        isAuthenticated: false,
         isLoading: false,
         error: e.toString(),
       );
@@ -169,6 +180,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (_) {
     } finally {
       state = const AuthState();
+      _ref.invalidate(isBiometricAvailableProvider);
     }
   }
 }
@@ -186,7 +198,11 @@ final biometricServiceProvider = Provider<BiometricService>(
 
 final isBiometricAvailableProvider = FutureProvider<bool>((ref) async {
   final biometric = ref.watch(biometricServiceProvider);
-  return biometric.isBiometricAvailable();
+  final isHardwareAvailable = await biometric.isBiometricAvailable();
+  if (!isHardwareAvailable) return false;
+
+  final storage = ref.watch(secureStorageProvider);
+  return await storage.hasBiometricCredentials();
 });
 
 final hiveServiceProvider = Provider<HiveService>(

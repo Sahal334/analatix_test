@@ -122,9 +122,13 @@ void main() {
 
   test('loginWithBiometrics success -> logs in with saved credentials', () async {
     final mockBiometric = MockBiometricService();
-    when(() => mockStorage.getToken()).thenAnswer((_) async => 'saved-token-abc');
-    when(() => mockStorage.getUsername()).thenAnswer((_) async => 'emilys');
+    when(() => mockStorage.getToken()).thenAnswer((_) async => null);
+    when(() => mockStorage.getUsername()).thenAnswer((_) async => null);
+    when(() => mockStorage.getBiometricCredentials()).thenAnswer(
+      (_) async => {'username': 'emilys', 'password': 'emilyspass'},
+    );
     when(() => mockBiometric.authenticate()).thenAnswer((_) async => true);
+    when(() => mockRepo.login('emilys', 'emilyspass')).thenAnswer((_) async => testAuth);
 
     final container = ProviderContainer(
       overrides: [
@@ -141,14 +145,17 @@ void main() {
     expect(result, isTrue);
     final state = container.read(authStateProvider);
     expect(state.isAuthenticated, isTrue);
-    expect(state.token, equals('saved-token-abc'));
-    expect(state.username, equals('emilys'));
+    expect(state.token, equals('test-token-123'));
+    expect(state.username, equals('alice'));
   });
 
   test('loginWithBiometrics failure -> does not authenticate if scan rejected', () async {
     final mockBiometric = MockBiometricService();
-    when(() => mockStorage.getToken()).thenAnswer((_) async => 'saved-token-abc');
-    when(() => mockStorage.getUsername()).thenAnswer((_) async => 'emilys');
+    when(() => mockStorage.getToken()).thenAnswer((_) async => null);
+    when(() => mockStorage.getUsername()).thenAnswer((_) async => null);
+    when(() => mockStorage.getBiometricCredentials()).thenAnswer(
+      (_) async => {'username': 'emilys', 'password': 'emilyspass'},
+    );
     when(() => mockBiometric.authenticate()).thenAnswer((_) async => false);
 
     final container = ProviderContainer(
