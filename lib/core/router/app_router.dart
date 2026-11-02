@@ -23,12 +23,15 @@ class AppRoutes {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final authNotifier = _AuthStateListenable(ref);
+  ref.onDispose(authNotifier.dispose);
+
   return GoRouter(
-    initialLocation: AppRoutes.products,
+    initialLocation: authNotifier.value ? AppRoutes.products : AppRoutes.login,
     debugLogDiagnostics: false,
-    refreshListenable: _AuthStateListenable(ref),
+    refreshListenable: authNotifier,
     redirect: (BuildContext context, GoRouterState state) {
-      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      final isAuthenticated = authNotifier.value;
       final onLoginPage = state.matchedLocation == AppRoutes.login;
 
       if (!isAuthenticated && !onLoginPage) return AppRoutes.login;
@@ -44,7 +47,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: const LoginScreen(),
         ),
       ),
-
       ShellRoute(
         builder: (context, state, child) => ShellScaffold(child: child),
         routes: [
@@ -70,7 +72,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-
           GoRoute(
             path: AppRoutes.favourites,
             name: 'favourites',
@@ -79,7 +80,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: const FavouritesScreen(),
             ),
           ),
-
           GoRoute(
             path: AppRoutes.settings,
             name: 'settings',
@@ -90,7 +90,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-
       GoRoute(
         path: AppRoutes.scanner,
         name: 'scanner',
@@ -103,8 +102,10 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-class _AuthStateListenable extends ChangeNotifier {
-  _AuthStateListenable(Ref ref) {
-    ref.listen<AuthState>(authStateProvider, (_, __) => notifyListeners());
+class _AuthStateListenable extends ValueNotifier<bool> {
+  _AuthStateListenable(Ref ref) : super(ref.read(isAuthenticatedProvider)) {
+    ref.listen<bool>(isAuthenticatedProvider, (_, next) {
+      value = next;
+    });
   }
 }

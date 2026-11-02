@@ -24,6 +24,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await Future.wait([
         _secureStorage.saveToken(authModel.accessToken),
         _secureStorage.saveRefreshToken(authModel.refreshToken),
+        _secureStorage.saveUsername(authModel.username),
       ]);
 
       _apiClient.updateToken(authModel.accessToken);

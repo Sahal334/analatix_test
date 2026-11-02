@@ -26,6 +26,7 @@ void main() {
   setUp(() {
     mockRepo = MockAuthRepository();
     mockStorage = MockSecureStorageService();
+    when(() => mockStorage.getUsername()).thenAnswer((_) async => null);
   });
 
   test('login success -> isAuthenticated is true and token is set', () async {

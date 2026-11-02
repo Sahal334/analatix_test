@@ -49,23 +49,33 @@ class AuthState {
 const Object _sentinel = Object();
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._ref) : super(const AuthState());
+  AuthNotifier(this._ref, {String? initialToken, String? initialUsername})
+      : super(
+          AuthState(
+            isAuthenticated: initialToken != null && initialToken.isNotEmpty,
+            token: initialToken,
+            username: initialUsername,
+          ),
+        );
 
   final Ref _ref;
 
   Future<void> init() async {
-    final storage = _ref.read(secureStorageProvider);
-    try {
-      final token = await storage.getToken();
-      if (token != null && token.isNotEmpty) {
-        _ref.read(apiClientProvider).updateToken(token);
-        state = state.copyWith(
-          isAuthenticated: true,
-          token: token,
-          error: null,
-        );
-      }
-    } catch (_) {
+    if (state.token == null) {
+      final storage = _ref.read(secureStorageProvider);
+      try {
+        final token = await storage.getToken();
+        final username = await storage.getUsername();
+        if (token != null && token.isNotEmpty) {
+          _ref.read(apiClientProvider).updateToken(token);
+          state = state.copyWith(
+            isAuthenticated: true,
+            token: token,
+            username: username,
+            error: null,
+          );
+        }
+      } catch (_) {}
     }
   }
 
@@ -116,6 +126,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
+final initialTokenProvider = Provider<String?>((ref) => null);
+final initialUsernameProvider = Provider<String?>((ref) => null);
+
 final secureStorageProvider = Provider<SecureStorageService>(
   (ref) => SecureStorageService(),
 );
@@ -143,7 +156,18 @@ final productRepositoryProvider = Provider<ProductRepository>((ref) {
 });
 
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final notifier = AuthNotifier(ref);
+  final initialToken = ref.watch(initialTokenProvider);
+  final initialUsername = ref.watch(initialUsernameProvider);
+
+  if (initialToken != null && initialToken.isNotEmpty) {
+    ref.read(apiClientProvider).updateToken(initialToken);
+  }
+
+  final notifier = AuthNotifier(
+    ref,
+    initialToken: initialToken,
+    initialUsername: initialUsername,
+  );
   notifier.init();
   return notifier;
 });
