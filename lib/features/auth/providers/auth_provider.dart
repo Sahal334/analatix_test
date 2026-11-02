@@ -58,6 +58,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final token = await storage.getToken();
       if (token != null && token.isNotEmpty) {
+        _ref.read(apiClientProvider).updateToken(token);
         state = state.copyWith(
           isAuthenticated: true,
           token: token,
@@ -110,7 +111,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await repo.logout();
     } catch (_) {
     } finally {
-      state = const AuthState(); // fully reset
+      state = const AuthState();
     }
   }
 }
@@ -124,8 +125,7 @@ final hiveServiceProvider = Provider<HiveService>(
 );
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final token = ref.watch(authStateProvider).token;
-  return ApiClient(token: token);
+  return ApiClient();
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

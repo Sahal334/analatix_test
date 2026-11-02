@@ -34,36 +34,7 @@ This is a mobile product catalogue application for iOS and Android built using F
 - Localization: flutter_localizations and intl (English and Arabic ARB files)
 - Testing: mocktail, fake_async, and flutter_test
 
-## Project Structure
-
-```
-lib/
-├── core/
-│   ├── constants/        # API endpoints, storage keys, page size
-│   ├── errors/           # Custom exception classes
-│   ├── extensions/       # Context helpers for theme and localization
-│   ├── l10n/             # ARB localization files and generated classes
-│   ├── router/           # GoRouter setup and bottom navigation shell
-│   ├── theme/            # Material 3 light and dark theme configuration
-│   └── utils/            # Debouncer utility and QR deep link parser
-├── data/
-│   ├── datasources/
-│   │   ├── local/        # HiveService and SecureStorageService
-│   │   └── remote/       # ApiClient with Dio
-│   ├── models/           # JSON data models (ProductModel, AuthModel, etc.)
-│   └── repositories/     # Repository implementations
-├── domain/
-│   ├── entities/         # Domain entities (ProductEntity, AuthEntity)
-│   └── repositories/     # Abstract repository interfaces
-├── features/
-│   ├── auth/             # Login screen and auth provider
-│   ├── products/         # Product list, detail screen, and providers
-│   ├── favourites/       # Favourites screen and provider
-│   ├── scanner/          # QR scanner screen and manual input dialog
-│   └── settings/         # Settings screen (language toggle, logout)
-└── main.dart             # App entry point, Hive initialization, ProviderScope
-```
-
+ 
 ## How to Run
 
 1. Make sure Flutter SDK is installed and configured:
@@ -86,7 +57,7 @@ flutter gen-l10n
 flutter analyze
 ```
 
-5. Run unit tests:
+5. Run unit and UI tests:
 ```bash
 flutter test
 ```
