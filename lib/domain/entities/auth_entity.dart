@@ -2,9 +2,9 @@ class AuthEntity {
   const AuthEntity({
     required this.accessToken,
     required this.refreshToken,
-    required this.id,
-    required this.username,
-    required this.email,
+    this.id = 0,
+    this.username = '',
+    this.email = '',
   });
 
   final String accessToken;

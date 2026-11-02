@@ -2,9 +2,9 @@ class AuthModel {
   const AuthModel({
     required this.accessToken,
     required this.refreshToken,
-    required this.id,
-    required this.username,
-    required this.email,
+    this.id = 0,
+    this.username = '',
+    this.email = '',
   });
 
   final String accessToken;
@@ -15,11 +15,11 @@ class AuthModel {
 
   factory AuthModel.fromJson(Map<String, dynamic> json) {
     return AuthModel(
-      accessToken: json['accessToken'] as String,
-      refreshToken: json['refreshToken'] as String,
-      id: json['id'] as int,
-      username: json['username'] as String,
-      email: json['email'] as String,
+      accessToken: (json['accessToken'] ?? json['token'] ?? '') as String,
+      refreshToken: (json['refreshToken'] ?? '') as String,
+      id: (json['id'] as int?) ?? 0,
+      username: (json['username'] as String?) ?? '',
+      email: (json['email'] as String?) ?? '',
     );
   }
 

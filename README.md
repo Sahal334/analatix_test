@@ -18,7 +18,7 @@ This is a mobile product catalogue application for iOS and Android built using F
 - Arabic / RTL Support: In-app language toggle in Settings that switches the app to Arabic and flips the entire layout to Right-to-Left (RTL).
 - UI States: Loading, empty, and error states with retry buttons on all screens.
 - Testing: Unit test suite covering authentication, pagination, caching, favourites, debouncing, and QR parsing.
-- Bonus features: Dark mode support and torch toggle in scanner.
+- Bonus features: Automatic token refresh via POST /auth/refresh, dark mode support, torch toggle in scanner, and automated full app login UI test.
 
 ## Tech Stack & Libraries
 

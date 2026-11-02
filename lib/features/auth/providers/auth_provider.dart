@@ -138,7 +138,8 @@ final hiveServiceProvider = Provider<HiveService>(
 );
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
+  final storage = ref.watch(secureStorageProvider);
+  return ApiClient(secureStorage: storage);
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

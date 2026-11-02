@@ -44,6 +44,34 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<AuthEntity> refreshToken() async {
+    try {
+      final token = await _secureStorage.getRefreshToken();
+      if (token == null || token.isEmpty) {
+        throw const AuthException('No refresh token available');
+      }
+
+      final model = await _apiClient.refreshSession(token);
+      await _secureStorage.saveToken(model.accessToken);
+      if (model.refreshToken.isNotEmpty) {
+        await _secureStorage.saveRefreshToken(model.refreshToken);
+      }
+
+      return AuthEntity(
+        accessToken: model.accessToken,
+        refreshToken: model.refreshToken,
+        id: model.id,
+        username: model.username,
+        email: model.email,
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  @override
   Future<void> logout() async {
     try {
       await _secureStorage.clearAll();

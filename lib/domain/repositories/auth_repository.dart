@@ -2,6 +2,6 @@ import 'package:analatix_flutter_test_muhammedsahal/domain/entities/auth_entity.
 
 abstract class AuthRepository {
   Future<AuthEntity> login(String username, String password);
-
+  Future<AuthEntity> refreshToken();
   Future<void> logout();
 }
