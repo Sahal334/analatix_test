@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses the camera to scan product QR codes.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to securely unlock your catalogue session.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -161,6 +161,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: const TextStyle(fontSize: 16),
                             ),
                     ),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final biometricAsync =
+                            ref.watch(isBiometricAvailableProvider);
+                        return biometricAsync.maybeWhen(
+                          data: (available) {
+                            if (!available) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 14),
+                              child: OutlinedButton.icon(
+                                onPressed: authState.isLoading
+                                    ? null
+                                    : () => ref
+                                        .read(authStateProvider.notifier)
+                                        .loginWithBiometrics(),
+                                icon: const Icon(Icons.fingerprint_rounded,
+                                    size: 22),
+                                label: const Text('Unlock with Biometrics'),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          orElse: () => const SizedBox.shrink(),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),

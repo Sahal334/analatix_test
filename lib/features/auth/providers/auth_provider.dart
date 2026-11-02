@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../data/datasources/local/biometric_service.dart';
 import '../../../data/datasources/local/hive_service.dart';
 import '../../../data/datasources/local/secure_storage_service.dart';
 import '../../../data/datasources/remote/api_client.dart';
@@ -113,6 +114,52 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> loginWithBiometrics() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final storage = _ref.read(secureStorageProvider);
+      final token = await storage.getToken();
+      final username = await storage.getUsername();
+
+      if (token == null || token.isEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'No saved session found. Please sign in with password first.',
+        );
+        return false;
+      }
+
+      final biometric = _ref.read(biometricServiceProvider);
+      final authenticated = await biometric.authenticate();
+
+      if (authenticated) {
+        _ref.read(apiClientProvider).updateToken(token);
+        state = state.copyWith(
+          isAuthenticated: true,
+          token: token,
+          username: username,
+          isLoading: false,
+          error: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isAuthenticated: false,
+          isLoading: false,
+          error: 'Biometric authentication cancelled or failed.',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -132,6 +179,15 @@ final initialUsernameProvider = Provider<String?>((ref) => null);
 final secureStorageProvider = Provider<SecureStorageService>(
   (ref) => SecureStorageService(),
 );
+
+final biometricServiceProvider = Provider<BiometricService>(
+  (ref) => BiometricService(),
+);
+
+final isBiometricAvailableProvider = FutureProvider<bool>((ref) async {
+  final biometric = ref.watch(biometricServiceProvider);
+  return biometric.isBiometricAvailable();
+});
 
 final hiveServiceProvider = Provider<HiveService>(
   (ref) => HiveService(),

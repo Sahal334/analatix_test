@@ -18,7 +18,7 @@ This is a mobile product catalogue application for iOS and Android built using F
 - Arabic / RTL Support: In-app language toggle in Settings that switches the app to Arabic and flips the entire layout to Right-to-Left (RTL).
 - UI States: Loading, empty, and error states with retry buttons on all screens.
 - Testing: Unit test suite covering authentication, pagination, caching, favourites, debouncing, and QR parsing.
-- Bonus features: Automatic token refresh via POST /auth/refresh, dark mode support, torch toggle in scanner, and automated full app login UI test.
+- Bonus features: Biometric unlock (Face ID / fingerprint) with local_auth, automatic token refresh via POST /auth/refresh, dark mode support, torch toggle in scanner, and automated full app login UI test.
 
 ## Tech Stack & Libraries
 
@@ -31,6 +31,7 @@ This is a mobile product catalogue application for iOS and Android built using F
 - QR Scanner: mobile_scanner (Camera-based code detection with torch control)
 - Image Caching: cached_network_image (Network image caching with placeholders and error widgets)
 - Connectivity: connectivity_plus (Live connectivity state stream)
+- Biometrics: local_auth (Face ID and fingerprint authentication)
 - Localization: flutter_localizations and intl (English and Arabic ARB files)
 - Testing: mocktail, fake_async, and flutter_test
 
@@ -78,8 +79,8 @@ For testing the scanner on a physical device or simulator (using the "Type code 
 
 ## Hours Spent & Potential Improvements
 
-- Total time spent: ~5 hours
+- Total time spent: ~5.5 hours
 - Potential future improvements:
-  - Add biometric authentication (Face ID / fingerprint) for faster login.
-  - Full cache pagination across all browsed pages.
-  - End-to-end integration tests using integration_test package.
+  - Full offline pagination caching across all previously loaded pages.
+  - End-to-end integration tests using integration_test package with mock web server.
+  - Product categories filter chips on the main catalogue screen.
